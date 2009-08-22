@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<project 
+  name="IronLess.Net" 
+  default="compile-full">
+
+  <property name="debug" value="true" />
+  <property name="buildNumber" value="0.0.0.1" />
+
+  <target name="clean" description="remove build artifacts">
+    <delete dir="build" if="${directory::exists('build')}" />
+  </target>
+
+  <target name="init">
+    <mkdir dir="build" />
+  </target>
+ 
+  <target name="copy-libraries" depends="init" description="Creates a runable version of IronLess">
+	<exec program="tools\7zip\7za.exe">
+		<arg value="x" />
+		<arg value="lib\LessCss.7z" />
+		<arg value="-obuild\" />
+		<arg value="-aos" />
+	</exec>
+	<copy todir="build\">
+      <fileset basedir="lib">
+        <include name="*.dll" />
+        <exclude name="nunit*" />
+        <exclude name="Rhino.Mocks.dll" />
+      </fileset>
+    </copy>
+  </target>
+ 
+  <target name="generate-assemblyinfo" depends="init" description="Creates common assemblyinfo">
+	<asminfo output="AssemblyInfo.cs" language="CSharp">
+      <imports>
+        <import namespace="System" />
+        <import namespace="System.Reflection" />
+        <import namespace="System.Runtime.InteropServices" />
+      </imports>
+      <attributes>
+        <attribute type="AssemblyVersionAttribute" value="${buildNumber}" />
+        <attribute type="AssemblyTitleAttribute" value="IronLess.Net" />
+        <attribute type="AssemblyCopyrightAttribute" value="Copyright © Daniel Hoelbling 2009" />
+      </attributes>
+    </asminfo>
+  </target>
+ 
+  <target name="compile-full" depends="compile-runner,copy-libraries" description="Compiles the application">
+	<delete file="AssemblyInfo.cs" />
+  </target>
+  <target name="compile-runner" depends="compile-wrapper" description="Compiles the Console application">
+	<csc target="exe" output="build\${project::get-name()}.Compiler.exe" debug="${debug}">
+      <sources>
+        <include name="src\IronLess.Compiler\**\*.cs" />
+        <include name="AssemblyInfo.cs" />
+        <exclude name="src\**\AssemblyInfo.cs" />
+      </sources>
+      <references>
+        <include name="build\${project::get-name()}.Wrapper.dll" />
+		<include name="lib\Microsoft*.dll" />
+      </references>
+    </csc>
+  </target>
+  <target name="compile-wrapper" depends="clean,generate-assemblyinfo" description="Compiles the wrapper library">
+    
+    <copy file="acknowledgements.txt" tofile="build\acknowledgements.txt" />
+    
+    <csc target="library" output="build\${project::get-name()}.Wrapper.dll" debug="${debug}">
+      <sources>
+        <include name="src\IronLess.Wrapper\**\*.cs" />
+        <include name="AssemblyInfo.cs" />
+        <exclude name="src\**\AssemblyInfo.cs" />
+      </sources>
+      <references>
+        <include name="lib\IronRuby*.dll" />
+		<include name="lib\Microsoft*.dll" />
+      </references>
+    </csc>
+    
+  </target>
+</project>

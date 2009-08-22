@@ -1,0 +1,8 @@
+*/bin/*
+*/obj/*
+build/*
+_ReSharper.LessCss.Net/*
+*.resharper.user
+*.csproj.user
+*.suo
+*.Publish.xml
