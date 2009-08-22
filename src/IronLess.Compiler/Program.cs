@@ -4,20 +4,25 @@
     using System.Diagnostics;
     using Wrapper;
 
-    internal class Program
+    public class Program
     {
         private static void Main(string[] args)
         {
-            if (args.Length != 1)
+            if (args.Length < 1)
             {
                 Console.WriteLine("Please specify less filename to compile to css");
                 return;
             }
             string inputFilename = args[0];
             string outputFileName = "";
+            if (args.Length == 2)
+            {
+                outputFileName = args[1];
+            }
+                
             Console.WriteLine("Compiling {0} to {1}", inputFilename, outputFileName);
             var elapsedTime = CountMilliseconds(() =>
-                      new IronLessExecuter().CompileLess(inputFilename)
+                      new IronLessExecuter().CompileLess(inputFilename, outputFileName)
                 );
 
             Console.WriteLine("Compilation finished after {0} seconds", elapsedTime);

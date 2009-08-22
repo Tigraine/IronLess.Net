@@ -1,36 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace IronLess.Wrapper
+﻿namespace IronLess.Wrapper
 {
-    using System.Diagnostics;
-    using Microsoft.Scripting.Hosting;
-
     public class IronLessExecuter
     {
-        public void CompileLess(string fileName)
+        public void CompileLess(string fileName, string outputFile)
         {
-            ScriptEngine engine = IronRuby.Ruby.CreateEngine();
-            engine.SetSearchPaths(new List<string>()
-                                      {
-                                          @".\IronRuby",
-                                          @".\ruby\site_ruby\1.8",
-                                          @".\ruby\1.8",
-                                          //@".\lib\\IronRuby\gems\1.8\gems\less-1.1.13\lib\vendor\treetop\lib",
-                                          @".\IronRuby\gems\1.8\gems\less-1.1.13\lib\"
-                                      });
+            RubyEngine engine = RubyEngine.Instance;
             engine.Execute(
-                @"require 'less'
-options = {
+                @"options = {
   :watch => false,
   :compress => false,
   :debug => true,
   :growl => false
-}
-options[:source] = 'variables.less'
-Less::Command.new( options ).run!");
+}");
+            engine.Execute(string.Format(@"options[:source] = '{0}'", fileName));
+            engine.Execute(string.Format(@"options[:destination] = '{0}'", outputFile));
+            engine.Execute(@"Less::Command.new( options ).run!");
         }
     }
 }
